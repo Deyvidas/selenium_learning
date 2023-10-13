@@ -1,6 +1,9 @@
 # Firefox profile folder
 firefox_profile/
 
+# Vscode settings
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
