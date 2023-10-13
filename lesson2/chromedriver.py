@@ -4,4 +4,4 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 service = Service(executable_path=ChromeDriverManager().install())
-driver = webdriver.Firefox(service=service)
+driver = webdriver.Chrome(service=service)
