@@ -1,6 +1,10 @@
 # Firefox profile folder
 firefox_profile/
 
+# Downloads folder
+firefox_download/
+chrome_download/
+
 # Vscode settings
 .vscode/
 
