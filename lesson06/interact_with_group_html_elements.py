@@ -2,8 +2,8 @@ from collections import namedtuple
 from pprint import pprint
 from typing import Any
 
-from lesson2.geckodriver import driver
-from lesson6.helpers.html_finders import (
+from lesson02.geckodriver import driver
+from lesson06.helpers.html_finders import (
     book_in_stock,
     get_book_price,
     get_book_title,

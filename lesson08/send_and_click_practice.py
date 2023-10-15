@@ -1,6 +1,6 @@
 from selenium.webdriver.common.action_chains import ActionChains
 
-from lesson2.geckodriver import driver, cursor_script
+from lesson02.geckodriver import driver, cursor_script
 
 
 driver.get('https://practice.expandtesting.com/form-validation')

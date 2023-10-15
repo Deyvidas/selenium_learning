@@ -1,7 +1,7 @@
 from selenium.webdriver.common.action_chains import ActionChains
 
 from config.settings import set_new_folder_or_get_existent
-from lesson2.geckodriver import driver, cursor_script
+from lesson02.geckodriver import driver, cursor_script
 
 
 path = set_new_folder_or_get_existent('lesson10') + '/' + 'image_to_upload.png'

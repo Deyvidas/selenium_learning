@@ -1,4 +1,4 @@
-from lesson2.geckodriver import driver
+from lesson02.geckodriver import driver
 
 
 # Теория (https://youtu.be/-l6XqQp5y1A?si=HYRFSuTv4r4_owlL)

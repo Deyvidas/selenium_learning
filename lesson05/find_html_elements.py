@@ -1,4 +1,4 @@
-from lesson2.geckodriver import driver
+from lesson02.geckodriver import driver
 
 
 driver.get('https://the-internet.herokuapp.com/add_remove_elements/')

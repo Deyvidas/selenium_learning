@@ -1,6 +1,6 @@
 from time import sleep
 
-from lesson2.geckodriver import driver
+from lesson02.geckodriver import driver
 
 
 # Делаем основной запрос.
