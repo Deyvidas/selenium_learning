@@ -28,11 +28,6 @@ document.addEventListener('mousemove', function(e) {
 # Настройка браузера перед запуском.
 options = Options()
 
-# Указываем папку куда firefox будет скачивать файлы.
-download_dir = set_new_folder_or_get_existent('firefox_download')
-options.set_preference('browser.download.dir', download_dir)
-options.set_preference('browser.download.folderList', 2)
-
 # --devtools -> Open DevTools on initial load (запуск с панелью разработки).
 options.add_argument('--devtools')
 
