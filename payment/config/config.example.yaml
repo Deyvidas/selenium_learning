@@ -1,0 +1,12 @@
+# !!! The file's name should be config.yaml !!!
+user_profile:
+    auth_url: !!str 'https://lk.ric-ul.ru/'
+    email: !!str 'some@email.com'
+    login: !!str 'some_login'
+    password: !!str 'some_password'
+
+    water_account: !!str 'asdfadfasdf'      # ЛC воды.
+    repair_account: !!str 'sdfsdfsdfsd'     # ЛC капитального ремонта.
+    heating_account: !!str 'sdfsdfsdfsd'    # ЛC отопления.
+    gas_account: !!str 'sdfsdfsdfsd'        # ЛC газа.
+    energy_account: !!str 'sdfsdfsdfsd'     # ЛC электроэнергии.

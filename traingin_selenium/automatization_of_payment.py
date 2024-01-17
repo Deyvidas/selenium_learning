@@ -1,55 +1,25 @@
-import os
+from dataclasses import dataclass
 import platform
 import re
 import time
-
 from datetime import date
+from typing import ClassVar, NamedTuple
+from selenium.common import InvalidElementStateException, TimeoutException
 
-from selenium.webdriver import Firefox
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.remote.webdriver import WebDriver
+from payment.base import BasePage
 
-from webdriver_manager.firefox import GeckoDriverManager
-
-from config.settings import set_new_folder_or_get_existent
-
-
-HOME_PAGE = 'https://lk.ric-ul.ru/'
-RIZ_LOGIN = os.getenv('RIZ_LOGIN')
-RIZ_PASSWORD = os.getenv('RIZ_PASSWORD')
-SEND_TO_EMAIL = os.getenv('SEND_TO_EMAIL')
-WATER_ACCOUNT_NUM = os.getenv('WATER_ACCOUNT_NUM')  # ЛC воды.
-REPAIR_ACCOUNT_NUM = os.getenv('REPAIR_ACCOUNT_NUM')  # ЛC кап. ремонта.
-HEATING_ACCOUNT_NUM = os.getenv('HEATING_ACCOUNT_NUM')  # ЛC отопления.
-GAS_ACCOUNT_NUM = os.getenv('GAS_ACCOUNT_NUM')  # ЛC газа.
-ENERGY_ACCOUNT_NUM = os.getenv('ENERGY_ACCOUNT_NUM')  # ЛC электроэнергии.
-
-# =============================================================================
-# Настройка браузера перед запуском.
-# =============================================================================
+from payment.config.drivers import firefox_driver as driver
+from payment.config.profile import user_profile as profile
+from payment.config.profile import UserProfile
 
 
-options = Options()
-options.add_argument('--private-window')
-options.add_argument('--devtools')
-options.add_argument('--width=1920')
-options.add_argument('--height=1080')
-options.add_argument('--profile')
-options.add_argument(set_new_folder_or_get_existent('firefox_profile'))
-
-service = Service(executable_path=GeckoDriverManager().install())
-driver = Firefox(options=options, service=service)
-
-
-driver.get(HOME_PAGE)
-ac = ActionChains(driver)
-driver_wait = WebDriverWait(driver=driver, timeout=10, poll_frequency=2)
-
-
+'''
 # =============================================================================
 # Вспомогательные функции.
 # =============================================================================
@@ -61,7 +31,7 @@ def check_added_service_in_basket(service_name: str):
     elements = driver.find_elements(*SERVICE_NAME)
     if elements == list():
         assert False, f'Услуги `{service_name}` нет в корзине.'
-    driver.get(HOME_PAGE)
+    driver.get(profile.home_page)
 
 
 def clear_field(field):
@@ -159,7 +129,6 @@ def type_value_in_input_with_attr(
 # АВТОРИЗАЦИЯ.
 # =============================================================================
 
-
 def click_to_authentication_button():
     # Находим кнопку авторизации и нажимаем на неё.
     AUTH_BUTTON = ('xpath', '//a[@class="profile-login-btn"]')
@@ -170,14 +139,13 @@ click_to_authentication_button()
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='Input_Login',
-    field_value=RIZ_LOGIN,
+    field_value=profile.login,
 )
 type_value_in_input_with_attr(
-    attr_name='id', attr_value='Input_Password', field_value=RIZ_PASSWORD
+    attr_name='id', attr_value='Input_Password', field_value=profile.password
 )
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 print('*' * 5, 'Авторизация прошла успешно!', '*' * 5)
-
 
 # =============================================================================
 # ВВОД ПОКАЗАНИИ СЧЕТЧИКОВ ВОДЫ.
@@ -225,10 +193,10 @@ select_checkbox_with_text('По лицевому счету')
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='AccountNumberValue',
-    field_value=WATER_ACCOUNT_NUM,
+    field_value=profile.water_account,
 )
 # Нажимаем кнопку enter и идем дальше.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Запрашиваем и вводим новые показатели счетчиков.
 set_new_water_data()
 # Находим кнопку отправки данных и нажимаем на нее.
@@ -245,17 +213,17 @@ print('*' * 5, 'Новые показания счетчиков воды усп
 # =============================================================================
 
 
-driver.get(HOME_PAGE)
+driver.get(profile.home_page)
 # Находим карточку `ПАО "Т Плюс"` и нажимаем на неё.
 click_card_with_text('ООО "Газпром межрегионгаз Ульяновск"')
 # Вводим номер лицевого счета.
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=GAS_ACCOUNT_NUM,
+    field_value=profile.gas_account,
 )
 # Нажимаем на enter и идем дальше.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Выберем чекбокс `Многоквартирные дома (6.81 руб./1 куб.м)` и кликнем на него.
 select_checkbox_with_text('Многоквартирные дома (6.81 руб./1 куб.м)')
 
@@ -311,7 +279,7 @@ click_card_with_text('АО "Ульяновскэнерго"')
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=ENERGY_ACCOUNT_NUM,
+    field_value=profile.energy_account,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
@@ -319,9 +287,9 @@ type_value_in_input_with_attr(
     attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Нажимаем на enter и идем дальше.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 
 
 # Находим поле с предыдущем показанием и сохраняем его значение.
@@ -368,14 +336,14 @@ print('*' * 5, f'Услуга `{SERVICE_NAME}` добавлена в корзи�
 # =============================================================================
 
 
-driver.get(HOME_PAGE)
+driver.get(profile.home_page)
 # Находим карточку `Оплата ... услуг` и нажимаем на неё.
 click_card_with_text('Оплата жилого помещения и коммунальных услуг')
 # Вводим номер лицевого счета.
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=WATER_ACCOUNT_NUM,
+    field_value=profile.water_account,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
@@ -383,16 +351,16 @@ type_value_in_input_with_attr(
     attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Нажимаем на enter и идем дальше.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Находим карточку `Начисление РКЦ Ульяновск` и нажимаем на неё.
 click_card_with_text('Начисление РКЦ Ульяновск')
 # Нажимаем на чекбокс `Оплата с учетом задолженности ...` если он не выбран.
 select_checkbox_with_text('Оплата с учетом задолженности за прошлые периоды')
 # Вводим email куда отправится чек об оплате.
 type_value_in_input_with_attr(
-    attr_name='id', attr_value='email', field_value=SEND_TO_EMAIL
+    attr_name='id', attr_value='email', field_value=profile.email
 )
 # Выбираем необходимый способ оплаты (пробел в конце не опечатка так в HTML).
 select_checkbox_with_text('Система быстрых платежей Банка России ')
@@ -416,7 +384,7 @@ click_card_with_text('Фонд капитального ремонта')
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=REPAIR_ACCOUNT_NUM,
+    field_value=profile.repair_account,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
@@ -424,14 +392,14 @@ type_value_in_input_with_attr(
     attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Нажимаем на enter и идем дальше.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Нажимаем на чекбокс `Оплата с учетом задолженности ...` если он не выбран.
 select_checkbox_with_text('Оплата с учетом задолженности за прошлые периоды')
 # Вводим email куда отправится чек об оплате.
 type_value_in_input_with_attr(
-    attr_name='id', attr_value='email', field_value=SEND_TO_EMAIL
+    attr_name='id', attr_value='email', field_value=profile.email
 )
 # Сохраняем название сервиса, что-бы затем проверить добавился ли он в корзину.
 SERVICE_NAME = get_service_name()
@@ -453,7 +421,7 @@ click_card_with_text('ПАО "Т Плюс"')
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=HEATING_ACCOUNT_NUM,
+    field_value=profile.heating_account,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
@@ -461,14 +429,14 @@ type_value_in_input_with_attr(
     attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Нажимаем на enter и идем дальше.
-ac.send_keys(Keys.ENTER).perform()
+action_chains.send_keys(Keys.ENTER).perform()
 # Нажимаем на чекбокс `Оплата с учетом задолженности ...` если он не выбран.
 select_checkbox_with_text('Оплата с учетом задолженности за прошлые периоды')
 # Вводим email куда отправится чек об оплате.
 type_value_in_input_with_attr(
-    attr_name='id', attr_value='email', field_value=SEND_TO_EMAIL
+    attr_name='id', attr_value='email', field_value=profile.email
 )
 # Сохраняем название сервиса, что-бы затем проверить добавился ли он в корзину.
 SERVICE_NAME = get_service_name()
@@ -477,3 +445,4 @@ click_button_with_text('Добавить в корзину')
 # Проверяем добавлена ли услуга в корзину.
 check_added_service_in_basket(SERVICE_NAME)
 print('*' * 5, f'Услуга `{SERVICE_NAME}` добавлена в корзину!', '*' * 5)
+'''
