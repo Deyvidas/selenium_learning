@@ -1,6 +1,7 @@
 from selenium.webdriver.common.action_chains import ActionChains
 
-from lesson02.geckodriver import driver, cursor_script
+from lesson02.geckodriver import cursor_script
+from lesson02.geckodriver import driver
 
 
 driver.get('https://practice.expandtesting.com/form-validation')
@@ -43,5 +44,6 @@ register_button = driver.find_element('xpath', '//button[text()=" Register "]')
     .move_by_offset(99, 99)
     .move_by_offset(-99, 99)
     .move_by_offset(0, -99)
-    .click().perform()
+    .click()
+    .perform()
 )

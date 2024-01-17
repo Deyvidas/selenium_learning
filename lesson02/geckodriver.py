@@ -1,7 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-
 from webdriver_manager.firefox import GeckoDriverManager
 
 from config.settings import set_new_folder_or_get_existent

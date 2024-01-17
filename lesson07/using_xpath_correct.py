@@ -33,16 +33,16 @@ from lesson02.geckodriver import driver
 # =============================================================================
 # CONTAINS
 # =============================================================================
-#     //element[contains(@attribute, "value2 value1")]
-#         - <element attribute="value2 value1">
-#         - <element attribute="... value2 ... value1 ...">
+# //element[contains(@attribute, "value2 value1")]
+#     - <element attribute="value2 value1">
+#     - <element attribute="... value2 ... value1 ...">
 # -----------------------------------------------------------------------------
-#     //element[contains(@attribute1, "value1 value2") and contains(@attribute2, "value3")]
-#         - <element attribute1="... value2 ... value1 ..." attribute2="... value3 ..."
+# //element[contains(@attribute1, "value1 value2") and contains(@attribute2, "value3")]
+#     - <element attribute1="... value2 ... value1 ..." attribute2="... value3 ..."
 # -----------------------------------------------------------------------------
-#     //element[contains(text(), "hello")]
-#         - <element>hello world</element>
-#         - <element>...hello...</element>
+# //element[contains(text(), "hello")]
+#     - <element>hello world</element>
+#     - <element>...hello...</element>
 # =============================================================================
 
 driver.get('http://books.toscrape.com/index.html')
@@ -56,7 +56,7 @@ button = driver.find_element(
     (
         '/html/body/div/div/div/div/section/div[2]/ol/li'
         '/article/div[@class="product_price"]/form/button'
-    )
+    ),
 )
 print(button.text)
 
