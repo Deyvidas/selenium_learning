@@ -8,9 +8,8 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
 
-element_not_found = (
-    '{name}(url={url}).find_element(location={location}) cant find element.'
-)
+more_that_one_found = '{name}(url={url}).find_element(location={location}) found multiple elements.'
+elements_not_found = '{name}(url={url}).find_elements(location={location}) can\'t find elements.'
 
 
 @dataclass(kw_only=True)
@@ -29,20 +28,42 @@ class BasePage:
         )
         self.driver.get(self.url)
 
-    def find_element(self, location: str) -> WebElement:
+    def find_child(self, location: str, parent: WebElement) -> WebElement:
         locator = ('xpath', location)
-        element = expected_conditions.presence_of_element_located(locator)
-        msg = element_not_found.format(
+        element = parent.find_element(*locator)
+        return element
+
+    def write_into(self, location: str, string: str) -> WebElement:
+        field = self.find_element(location)
+        field.clear()
+        field.send_keys(string)
+        return field
+
+    def click_button(self, location: str) -> None:
+        self.find_element(location).click()
+
+    def find_element(self, location: str) -> WebElement:
+        element = self.find_elements(location)
+        if len(element) == 1:
+            return element[0]
+        msg = more_that_one_found.format(
             name=type(self).__name__,
             url=self.url,
             location=location,
         )
-        return self.driver_wait.until(element, message=msg)
+        raise ValueError(msg)
 
-    def write_into(self, location: str, string: str) -> None:
-        field = self.find_element(location)
-        field.clear()
-        field.send_keys(string)
+    def find_elements(self, location: str) -> list[WebElement]:
+        loc = ('xpath', location)
+        elements = expected_conditions.presence_of_all_elements_located(loc)
+        msg = elements_not_found.format(
+            name=type(self).__name__,
+            url=self.url,
+            location=location,
+        )
+        return self.driver_wait.until(elements, message=msg)
 
-    def click_button(self, location: str) -> None:
-        self.find_element(location).click()
+    def print_success(self, message: str) -> None:
+        print('+' * 100)
+        print('{:+^100}'.format(f' {message} '))
+        print('+' * 100)
