@@ -22,11 +22,11 @@ HOME_PAGE = 'https://lk.ric-ul.ru/'
 RIZ_LOGIN = os.getenv('RIZ_LOGIN')
 RIZ_PASSWORD = os.getenv('RIZ_PASSWORD')
 SEND_TO_EMAIL = os.getenv('SEND_TO_EMAIL')
-WATER_ACCOUNT_NUM = os.getenv('WATER_ACCOUNT_NUM')      # ЛC воды.
-REPAIR_ACCOUNT_NUM = os.getenv('REPAIR_ACCOUNT_NUM')    # ЛC кап. ремонта.
+WATER_ACCOUNT_NUM = os.getenv('WATER_ACCOUNT_NUM')  # ЛC воды.
+REPAIR_ACCOUNT_NUM = os.getenv('REPAIR_ACCOUNT_NUM')  # ЛC кап. ремонта.
 HEATING_ACCOUNT_NUM = os.getenv('HEATING_ACCOUNT_NUM')  # ЛC отопления.
-GAS_ACCOUNT_NUM = os.getenv('GAS_ACCOUNT_NUM')          # ЛC газа.
-ENERGY_ACCOUNT_NUM = os.getenv('ENERGY_ACCOUNT_NUM')    # ЛC электроэнергии.
+GAS_ACCOUNT_NUM = os.getenv('GAS_ACCOUNT_NUM')  # ЛC газа.
+ENERGY_ACCOUNT_NUM = os.getenv('ENERGY_ACCOUNT_NUM')  # ЛC электроэнергии.
 
 # =============================================================================
 # Настройка браузера перед запуском.
@@ -138,9 +138,9 @@ def select_checkbox_with_text(text: str):
 
 
 def type_value_in_input_with_attr(
-        attr_name: str,
-        attr_value: str,
-        field_value: str,
+    attr_name: str,
+    attr_value: str,
+    field_value: str,
 ):
     # Находим поле с атрибутом `{attr_name}="{attr_value}"`.
     FIELD = ('xpath', f'//input[@{attr_name}=\'{attr_value}\']')
@@ -173,9 +173,7 @@ type_value_in_input_with_attr(
     field_value=RIZ_LOGIN,
 )
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='Input_Password',
-    field_value=RIZ_PASSWORD
+    attr_name='id', attr_value='Input_Password', field_value=RIZ_PASSWORD
 )
 ac.send_keys(Keys.ENTER).perform()
 print('*' * 5, 'Авторизация прошла успешно!', '*' * 5)
@@ -254,7 +252,7 @@ click_card_with_text('ООО "Газпром межрегионгаз Ульян
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=GAS_ACCOUNT_NUM
+    field_value=GAS_ACCOUNT_NUM,
 )
 # Нажимаем на enter и идем дальше.
 ac.send_keys(Keys.ENTER).perform()
@@ -313,14 +311,12 @@ click_card_with_text('АО "Ульяновскэнерго"')
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=ENERGY_ACCOUNT_NUM
+    field_value=ENERGY_ACCOUNT_NUM,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='group-1-field-1-value',
-    field_value=pay_period
+    attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
 ac.send_keys(Keys.ENTER).perform()
@@ -333,8 +329,7 @@ xpath = '//td[contains(@class, "pay-ulenergo-old")]'
 last_energy_data = get_element_text(xpath)
 # Преобразовываем строку в int.
 last_energy_data = convert_string_to_number(
-    regex=r'[\d]+',
-    value=last_energy_data
+    regex=r'[\d]+', value=last_energy_data
 )
 
 # Запрашиваем новое показание у пользователя, проверяем переданное значение.
@@ -380,14 +375,12 @@ click_card_with_text('Оплата жилого помещения и комму
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=WATER_ACCOUNT_NUM
+    field_value=WATER_ACCOUNT_NUM,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='group-1-field-1-value',
-    field_value=pay_period
+    attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
 ac.send_keys(Keys.ENTER).perform()
@@ -399,9 +392,7 @@ click_card_with_text('Начисление РКЦ Ульяновск')
 select_checkbox_with_text('Оплата с учетом задолженности за прошлые периоды')
 # Вводим email куда отправится чек об оплате.
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='email',
-    field_value=SEND_TO_EMAIL
+    attr_name='id', attr_value='email', field_value=SEND_TO_EMAIL
 )
 # Выбираем необходимый способ оплаты (пробел в конце не опечатка так в HTML).
 select_checkbox_with_text('Система быстрых платежей Банка России ')
@@ -425,14 +416,12 @@ click_card_with_text('Фонд капитального ремонта')
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=REPAIR_ACCOUNT_NUM
+    field_value=REPAIR_ACCOUNT_NUM,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='group-1-field-1-value',
-    field_value=pay_period
+    attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
 ac.send_keys(Keys.ENTER).perform()
@@ -442,9 +431,7 @@ ac.send_keys(Keys.ENTER).perform()
 select_checkbox_with_text('Оплата с учетом задолженности за прошлые периоды')
 # Вводим email куда отправится чек об оплате.
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='email',
-    field_value=SEND_TO_EMAIL
+    attr_name='id', attr_value='email', field_value=SEND_TO_EMAIL
 )
 # Сохраняем название сервиса, что-бы затем проверить добавился ли он в корзину.
 SERVICE_NAME = get_service_name()
@@ -466,14 +453,12 @@ click_card_with_text('ПАО "Т Плюс"')
 type_value_in_input_with_attr(
     attr_name='id',
     attr_value='group-1-field-0-value',
-    field_value=HEATING_ACCOUNT_NUM
+    field_value=HEATING_ACCOUNT_NUM,
 )
 # Вводим период оплаты.
 pay_period = f'{date.today().month}.{date.today().year}'
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='group-1-field-1-value',
-    field_value=pay_period
+    attr_name='id', attr_value='group-1-field-1-value', field_value=pay_period
 )
 # Нажимаем enter что-бы введенная дата преобразовалась в нужный формат.
 ac.send_keys(Keys.ENTER).perform()
@@ -483,9 +468,7 @@ ac.send_keys(Keys.ENTER).perform()
 select_checkbox_with_text('Оплата с учетом задолженности за прошлые периоды')
 # Вводим email куда отправится чек об оплате.
 type_value_in_input_with_attr(
-    attr_name='id',
-    attr_value='email',
-    field_value=SEND_TO_EMAIL
+    attr_name='id', attr_value='email', field_value=SEND_TO_EMAIL
 )
 # Сохраняем название сервиса, что-бы затем проверить добавился ли он в корзину.
 SERVICE_NAME = get_service_name()
