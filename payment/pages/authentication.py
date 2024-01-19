@@ -3,8 +3,8 @@ from typing import NamedTuple
 
 from selenium.webdriver.remote.webelement import WebElement
 
-from payment.base import BasePage
 from payment.config.profile import UserProfile
+from payment.pages.base import BasePage
 
 
 class AuthenticationLocators(NamedTuple):

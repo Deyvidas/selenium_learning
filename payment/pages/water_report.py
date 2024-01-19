@@ -4,9 +4,9 @@ from typing import NamedTuple
 
 from selenium.common import NoSuchAttributeException
 
-from payment.base import BasePage
 from payment.config.profile import UserProfile
-from payment.utils import is_float
+from payment.pages.base import BasePage
+from payment.utils import float_is_valid
 
 
 send_report_failed = (
@@ -21,7 +21,7 @@ class Water(str, Enum):
 
 class WaterReportLocators(NamedTuple):
     # authorization with account number;
-    card_report: str
+    card_location: str
     flag_use_account: str
     input_account: str
     button_confirm: str
@@ -42,7 +42,7 @@ class WaterReportLocators(NamedTuple):
 class WaterReportPage(BasePage):
     loc = WaterReportLocators(
         # authorization with account number;
-        card_report='//b[text()="Ввод показаний ЖКУ"]',
+        card_location='//b[text()="Ввод показаний ЖКУ"]',
         flag_use_account='//span[text()="По лицевому счету"]',
         input_account='//input[@id="AccountNumberValue"]',
         button_confirm='//button[text()="Проверить"]',
@@ -63,7 +63,7 @@ class WaterReportPage(BasePage):
         """Run the process of reporting of water meters and return True if it
         is successful, else False.
         """
-        self.click_button(self.loc.card_report)
+        self.click_button(self.loc.card_location)
         self.enter_water_account_number(profile)
         self.enter_water_data(
             block_old=self.loc.block_old_hot,
@@ -125,13 +125,13 @@ class WaterReportPage(BasePage):
         enters a valid value that is greater or equal to the past value and
         return a `tuple(old_value: float, new_value: float)`.
         """
-        value, date = self.get_old_water_data(locator)
-        print(f'{water.value.capitalize()}: {date} -> {value}')
+        old_val, date = self.get_old_water_data(locator)
+        print(f'{water.value.capitalize()}: {date} -> {old_val}')
         message = f'New value of {water.value.upper()} water:\n>>> '
-        new = input(message).replace(',', '.')
-        while not is_float(new) or float(new) < float(value):
-            new = input(message).replace(',', '.')
-        return (value, float(new))
+        new_val = input(message).replace(',', '.')
+        while not float_is_valid(new_val) or float(new_val) < float(old_val):
+            new_val = input(message).replace(',', '.')
+        return (old_val, float(new_val))
 
     def get_old_water_data(self, locator: str) -> tuple[float, str]:
         """Find the value that the user entered at the previous time and the
@@ -145,8 +145,8 @@ class WaterReportPage(BasePage):
 
         value = self.find_child('.//input', block).get_attribute('value')
         if value is None:
-            raise NoSuchAttributeException(f'{locator}.//input has not attribute \'value\'.')  # type: ignore
-        elif not is_float(value):
+            raise NoSuchAttributeException(f'{locator}.//input has not attribute \'value\'.')  # fmt: skip
+        elif not float_is_valid(value):
             raise ValueError(f'Cant convert {value} into the float type.')
 
         return (float(value.replace(',', '.')), date)
