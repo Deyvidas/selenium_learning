@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import NamedTuple
 
+from questionary import print as q_print
 from selenium.common import NoSuchAttributeException
 
-from payment.config.profile import UserProfile
-from payment.pages.base import BasePage
+from payment.config.user_profile import UserProfile
+from payment.pages_past.base import BasePage
 from payment.utils import float_is_valid
 
 
@@ -82,7 +83,8 @@ class WaterReportPage(BasePage):
         elements = self.find_elements(self.loc.text_report_success)
         self.click_button(self.loc.button_close_result)
         if len(elements) == 2:
-            self.print_success('The water report was successful!')
+            msg = 'The water report was successful!'
+            q_print(msg, style='bold fg:green')
             return True
         print(send_report_failed)
         return False

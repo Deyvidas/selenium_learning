@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from time import sleep
 from typing import NamedTuple
 
+from questionary import print as q_print
 from selenium.webdriver.remote.webelement import WebElement
 
-from payment.config.profile import UserProfile
-from payment.pages.base import BasePage
+from payment.config.user_profile import UserProfile
+from payment.pages_past.base import BaseDriver
 
 
 class AuthenticationLocators(NamedTuple):
@@ -16,7 +18,7 @@ class AuthenticationLocators(NamedTuple):
 
 
 @dataclass(kw_only=True)
-class AuthenticationPage(BasePage):
+class AuthenticationPage(BaseDriver):
     loc = AuthenticationLocators(
         button_login='//a[@class="profile-login-btn"]',
         input_login='//input[@id="Input_Login"]',
@@ -32,15 +34,17 @@ class AuthenticationPage(BasePage):
         self.click_button(self.loc.button_login)
         self.enter_auth_data(profile)
 
-        url_before = self.driver.current_url
         self.click_button(self.loc.button_authenticate)
-        url_after = self.driver.current_url
+        sleep(2)
+        cookies = self.driver.get_cookies()
+        cookies_ = [c for c in cookies if c['secure'] is True]
 
-        if url_before != url_after:
-            self.print_success('The authentication was successful!')
+        if len(cookies_) > 1:
+            msg = 'The authentication was successful!'
+            q_print(msg, style='bold fg:green')
             return True
         element = self.find_element(self.loc.invalid_auth)
-        print(element.text)
+        q_print(element.text, 'bold fg:red')
         return False
 
     def enter_auth_data(self, profile: UserProfile) -> WebElement:

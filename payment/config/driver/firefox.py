@@ -1,22 +1,21 @@
-from typing import override
-
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.webdriver import WebDriver
 from webdriver_manager.firefox import GeckoDriverManager
 
 from payment.config import CONFIG_DIR
-from payment.config.drivers.abstract import AbstractDriver
+from payment.config.driver.base import DriverBase
 
 
-class FirefoxDriver(AbstractDriver[WebDriver, Options, Service]):
+class DriverFirefox(DriverBase, WebDriver):
+    def __init__(self):
+        super().__init__(
+            options=self.options,
+            service=Service(executable_path=GeckoDriverManager().install()),
+            keep_alive=True,
+        )
+
     @property
-    @override
-    def driver(self) -> WebDriver:
-        return WebDriver(options=self.options, service=self.service)
-
-    @property
-    @override
     def options(self) -> Options:
         options = Options()
         options.add_argument('--private-window')
@@ -26,11 +25,6 @@ class FirefoxDriver(AbstractDriver[WebDriver, Options, Service]):
         options.add_argument('--profile')
         options.add_argument(self.profile_dir)
         return options
-
-    @property
-    @override
-    def service(self) -> Service:
-        return Service(executable_path=GeckoDriverManager().install())
 
     @property
     def profile_dir(self) -> str:
@@ -43,6 +37,3 @@ class FirefoxDriver(AbstractDriver[WebDriver, Options, Service]):
             gitignore.write_text('*')
 
         return str(profile_root)
-
-
-firefox_driver = FirefoxDriver().driver
